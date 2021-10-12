@@ -1,0 +1,5 @@
+- use web3js to connect to MetaMask to 
+  access lockchain accounts and data
+- load contracts from JSON files; do not
+  depends on truffle or typechain directly
+   
