@@ -10,6 +10,9 @@ import {
   NamedContract,
   ContractName,
 } from "./types";
+
+import { BlockchainContract } from "../../store/types";
+
 import { AbiItem } from "web3-utils";
 
 declare global {
@@ -105,7 +108,9 @@ const loadContract = async (
   }
 };
 
-export const loadContracts = async (web3: Web3) => {
+export const loadContracts = async (
+  web3: Web3
+): Promise<BlockchainContract> => {
   if (web3 === web3Empty) {
     throw new Error("Make sure you load the web3 first.");
   }
@@ -118,7 +123,12 @@ export const loadContracts = async (web3: Web3) => {
   const bank = await loadContract("Bank", web3);
   contracts.push({ name: "Bank", contract: bank[0], address: bank[1] });
 
-  return contracts;
+  return {
+    contracts: contracts,
+    Tether: contracts[0],
+    RWD: contracts[1],
+    Bank: contracts[2],
+  };
 };
 
 export const balanceOf = async (contract: NamedContract, account: string) => {

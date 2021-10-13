@@ -1,17 +1,19 @@
-import { balanceOf, NamedContract } from "../services/blockchain";
+import { useRecoilValue } from "recoil";
+import { balanceOf } from "../services/blockchain";
+import { accountState, contractState } from "../store";
 
-interface AccountListProps {
-  accounts: string[];
-  contracts: NamedContract[];
-}
+interface AccountListProps {}
 
-const AccountList: React.FC<AccountListProps> = ({ accounts, contracts }) => {
+const AccountList: React.FC<AccountListProps> = () => {
+  const accountStateValue = useRecoilValue(accountState);
+  const contractStateValue = useRecoilValue(contractState);
+
   const getBalance = async (account: string) => {
-    const balance = await balanceOf(contracts[0], account);
+    const balance = await balanceOf(contractStateValue.Tether!, account);
     console.log(balance);
   };
 
-  const renderAccounts = accounts.map((account, index) => (
+  const renderAccounts = accountStateValue.accounts.map((account, index) => (
     <li
       key={index}
       onClick={() => {

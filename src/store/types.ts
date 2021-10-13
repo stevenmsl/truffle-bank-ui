@@ -11,7 +11,7 @@ export interface BlockchainAccount {
 
 export interface BlockchainContract {
   contracts: NamedContract[];
-  Tether: NamedContract;
-  RWD: NamedContract;
-  Bank: NamedContract;
+  Tether?: NamedContract;
+  RWD?: NamedContract;
+  Bank?: NamedContract;
 }

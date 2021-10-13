@@ -1,26 +1,21 @@
 import { useEffect, useRef, useState } from "react";
 import { web3Empty } from "./services/blockchain";
-import { useSetRecoilState } from "recoil";
-import {
-  loadWeb3,
-  loadContracts,
-  loadAccounts,
-  NamedContract,
-} from "./services/blockchain";
+import { useRecoilState } from "recoil";
+import { loadWeb3, loadContracts, loadAccounts } from "./services/blockchain";
 
 import AccountList from "./components/account-list";
 import ContractList from "./components/contract-list";
 
 import "./App.css";
-import { web3State } from "./store";
+import { accountState, web3State, contractState } from "./store";
 
 const App = () => {
   const [web3Ready, setWeb3Ready] = useState(false);
-  const [accounts, setAccounts] = useState([""]);
-  const [contracts, setContracts] = useState([] as NamedContract[]);
   const [dataReady, setDataReady] = useState(false);
-  const setWeb3Server = useSetRecoilState(web3State);
+  const [web3Server, setWeb3Server] = useRecoilState(web3State);
 
+  const [accountStateValue, setAccounts] = useRecoilState(accountState);
+  const [contractStateValue, setContracts] = useRecoilState(contractState);
   const web3 = useRef(web3Empty);
 
   /* 
@@ -31,13 +26,13 @@ const App = () => {
   */
   useEffect(() => {
     const startLoadWeb3 = async () => {
-      let loadedWeb3 = await loadWeb3();
+      const loadedWeb3 = await loadWeb3();
       if (!(loadedWeb3 === web3Empty)) {
         web3.current = loadedWeb3;
-        setWeb3Ready(true);
         setWeb3Server(() => {
-          return { web3: loadedWeb3 };
+          return { web3: Object.create(loadedWeb3) };
         });
+        setWeb3Ready(true);
       } else {
         setWeb3Ready(false);
       }
@@ -52,34 +47,47 @@ const App = () => {
     */
     if (web3Ready) {
       const startLoadBlockchainData = async () => {
-        const loadedAccounts = await loadAccounts(web3.current);
+        const loadedAccounts = await loadAccounts(web3Server.web3);
         if (loadedAccounts) {
-          setAccounts([...loadedAccounts]);
+          setAccounts({ accounts: [...loadedAccounts] });
         } else {
           setDataReady(false);
           return;
         }
-        const loadedContracts = await loadContracts(web3.current);
-        setContracts([...loadedContracts]);
+        const loadedContracts = await loadContracts(web3Server.web3);
+        setContracts({
+          contracts: loadedContracts.contracts.map((contract) => {
+            return Object.create(contract);
+          }),
+          Tether: loadedContracts.Tether
+            ? Object.create(loadedContracts.Tether)
+            : undefined,
+          RWD: loadedContracts.RWD
+            ? Object.create(loadedContracts.RWD)
+            : undefined,
+          Bank: loadedContracts.Bank
+            ? Object.create(loadedContracts.Bank)
+            : undefined,
+        });
 
         setDataReady(true);
       };
       startLoadBlockchainData();
     }
-  }, [web3Ready]);
+  }, [web3Ready, setAccounts, web3Server.web3, setContracts]);
 
-  useEffect(() => {}, [accounts, contracts]);
+  useEffect(() => {
+    console.log(contractStateValue.contracts);
+    console.log(accountStateValue.accounts);
+    console.log(web3Server);
+  }, [accountStateValue.accounts, web3Server, contractStateValue.contracts]);
 
   const renderAccounts = () => {
-    return dataReady ? (
-      <AccountList accounts={accounts} contracts={contracts}></AccountList>
-    ) : (
-      <p>Loading accounts </p>
-    );
+    return dataReady ? <AccountList></AccountList> : <p>Loading accounts </p>;
   };
   const renderContracts = () => {
     return dataReady ? (
-      <ContractList contracts={contracts}></ContractList>
+      <ContractList contracts={contractStateValue.contracts}></ContractList>
     ) : (
       <p>Loading contracts... </p>
     );
