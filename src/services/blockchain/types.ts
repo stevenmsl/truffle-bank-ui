@@ -31,7 +31,7 @@ export type ContractMetaData = {
 */
 export type NamedContract = {
   name: ContractName;
-  contract: Contract;
+  web3Contract: Contract;
   address: string;
 };
 

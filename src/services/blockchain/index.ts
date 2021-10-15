@@ -14,6 +14,7 @@ import {
 import { BlockchainContract } from "../../store/types";
 
 import { AbiItem } from "web3-utils";
+import { ContractQuery } from "./contract-query";
 
 declare global {
   interface Window {
@@ -117,11 +118,15 @@ export const loadContracts = async (
   const contracts: NamedContract[] = [];
 
   const tether = await loadContract("Tether", web3);
-  contracts.push({ name: "Tether", contract: tether[0], address: tether[1] });
+  contracts.push({
+    name: "Tether",
+    web3Contract: tether[0],
+    address: tether[1],
+  });
   const rwd = await loadContract("Rwd", web3);
-  contracts.push({ name: "Rwd", contract: rwd[0], address: rwd[1] });
+  contracts.push({ name: "Rwd", web3Contract: rwd[0], address: rwd[1] });
   const bank = await loadContract("Bank", web3);
-  contracts.push({ name: "Bank", contract: bank[0], address: bank[1] });
+  contracts.push({ name: "Bank", web3Contract: bank[0], address: bank[1] });
 
   return {
     contracts: contracts,
@@ -132,15 +137,16 @@ export const loadContracts = async (
 };
 
 export const balanceOf = async (contract: NamedContract, account: string) => {
-  /* 
-   - balanceOf will return you an object that has an call method defined 
-   - you need to call the call() method to get the balance
- */
+  const query = new ContractQuery(contract);
 
-  const balance = await contract.contract.methods.balanceOf(account).call();
+  const balance = await query.balanceOf(account);
   return balance;
 };
 
-export const tokens = (web3: Web3, number: string) => {
-  return web3.utils.toWei(number, "ether");
+export const weiToEther = (web3: Web3, amountInWei: string) => {
+  return web3.utils.fromWei(amountInWei, "ether");
+};
+
+export const etherToWei = (web3: Web3, amountInEther: string) => {
+  return web3.utils.toWei(amountInEther, "ether");
 };

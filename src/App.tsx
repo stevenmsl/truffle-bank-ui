@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { web3Empty } from "./services/blockchain";
 import { useRecoilState } from "recoil";
 import { loadWeb3, loadContracts, loadAccounts } from "./services/blockchain";
@@ -16,7 +16,6 @@ const App = () => {
 
   const [accountStateValue, setAccounts] = useRecoilState(accountState);
   const [contractStateValue, setContracts] = useRecoilState(contractState);
-  const web3 = useRef(web3Empty);
 
   /* 
     - check if MetaMask is installed
@@ -28,7 +27,6 @@ const App = () => {
     const startLoadWeb3 = async () => {
       const loadedWeb3 = await loadWeb3();
       if (!(loadedWeb3 === web3Empty)) {
-        web3.current = loadedWeb3;
         setWeb3Server(() => {
           return { web3: Object.create(loadedWeb3) };
         });
@@ -87,7 +85,7 @@ const App = () => {
   };
   const renderContracts = () => {
     return dataReady ? (
-      <ContractList contracts={contractStateValue.contracts}></ContractList>
+      <ContractList></ContractList>
     ) : (
       <p>Loading contracts... </p>
     );
