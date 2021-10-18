@@ -16,6 +16,7 @@ const AccountList: React.FC<AccountListProps> = () => {
         accountStateValue.accounts &&
         contractStateValue.Tether &&
         contractStateValue.RWD &&
+        contractStateValue.Bank &&
         web3ServerStateValue.web3
       )
     )
@@ -26,15 +27,34 @@ const AccountList: React.FC<AccountListProps> = () => {
         account={account}
         tether={contractStateValue.Tether!}
         rwd={contractStateValue.RWD!}
+        bank={contractStateValue.Bank!}
         web3={web3ServerStateValue.web3}
       ></AccountDashboard>
     ));
   };
+
+  const renderBank = () => {
+    if (
+      !(
+        accountStateValue.accounts &&
+        contractStateValue.Tether &&
+        contractStateValue.RWD &&
+        contractStateValue.Bank &&
+        web3ServerStateValue.web3
+      )
+    )
+      return <p>loading...</p>;
+
+    const account = accountStateValue.accounts[0];
+
+    return <BankDashboard account={account}></BankDashboard>;
+  };
+
   return (
     <div>
       <p>Account List</p>
       <ul>{renderAccounts()}</ul>
-      <BankDashboard></BankDashboard>
+      {renderBank()}
     </div>
   );
 };
